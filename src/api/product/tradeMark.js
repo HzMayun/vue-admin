@@ -1,5 +1,6 @@
 import request from '@/utils/request'
 
+
 const api_name = '/admin/product/baseTrademark'
 
 export default {
@@ -11,5 +12,14 @@ export default {
       url: `${api_name}/${page}/${limit}`,
       method: 'GET',
     })
-  }
+  },
+  //新增品牌
+  addPageList(data) {
+    return request({
+      url: `${api_name}/save`,
+      method: 'POST',
+      data
+    })
+  },
+
 }
