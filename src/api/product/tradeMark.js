@@ -21,5 +21,12 @@ export default {
       data
     })
   },
+  //删除品牌
+  RemovePageList(id) {
+    return request({
+      url: `${api_name}/remove/${id}`,
+      method: 'DELETE',
+    })
+  },
 
 }

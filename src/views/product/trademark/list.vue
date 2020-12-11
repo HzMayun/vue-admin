@@ -56,7 +56,7 @@
           <el-button
             size="mini"
             type="danger"
-            @click="handleDelete(scope.$index, scope.row)"
+            @click="DelPageList(+scope.$index + 1)"
             >删除</el-button
           >
         </template></el-table-column
@@ -152,7 +152,8 @@ export default {
       this.$refs["form"].validate(async (valid) => {
         if (valid) {
           this.$message.success("添加品牌成功");
-          const { tmName, logoUrl } = this.form;
+          const tmName = this.form.tmName;
+          const logoUrl = this.form.logoUrl;
           console.log(tmName, logoUrl);
           //发送添加项目的请求
           await this.$API.tradeMark.addPageList({ tmName, logoUrl });
@@ -161,6 +162,11 @@ export default {
           this.$message.error("添加品牌失败 ");
         }
       });
+    },
+    //删除品牌
+    async DelPageList(id) {
+      console.log(id);
+      await this.$API.tradeMark.RemovePageList(id);
     },
   },
   mounted() {
