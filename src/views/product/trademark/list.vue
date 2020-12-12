@@ -1,11 +1,14 @@
 <template>
   <div>
     <!-- 按钮 -->
-    <el-button type="primary" class="el-icon-plus" @click="visible = true"
+    <el-button type="primary" class="el-icon-plus" @click="add"
       >添加品牌</el-button
     >
     <!-- 点击添加按钮，显示出对话框 -->
-    <el-dialog :visible.sync="visible" title="添加品牌">
+    <el-dialog
+      :visible.sync="visible"
+      :title="`${form.id ? '修改' : '添加'}品牌`"
+    >
       <el-form :model="form" :rules="rules" ref="form" label-width="100px">
         <!-- 品牌名称 -->
         <el-form-item label="品牌名称" prop="tmName">
@@ -49,14 +52,9 @@
         </template>
       </el-table-column>
       <el-table-column label="操作">
-        <template slot-scope="scope">
-          <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
-            >编辑</el-button
-          >
-          <el-button
-            size="mini"
-            type="danger"
-            @click="DelPageList(+scope.$index + 1)"
+        <template v-slot="{ row }">
+          <el-button size="mini" @click="update(row)">修改</el-button>
+          <el-button size="mini" type="danger" @click="DelPageList(row.id)"
             >删除</el-button
           >
         </template></el-table-column
@@ -151,17 +149,50 @@ export default {
     submitForm() {
       this.$refs["form"].validate(async (valid) => {
         if (valid) {
-          this.$message.success("添加品牌成功");
-          const tmName = this.form.tmName;
-          const logoUrl = this.form.logoUrl;
-          console.log(tmName, logoUrl);
-          //发送添加项目的请求
-          await this.$API.tradeMark.addPageList({ tmName, logoUrl });
-          this.visible = false; //隐藏会话框
-        } else {
-          this.$message.error("添加品牌失败 ");
+          const { form } = this;
+          const isUpdate = !!form.id;
+          //如果是修改需要验证
+          if (isUpdate) {
+            const tm = this.tradeLists.find((tm) => (tm.id = form.id));
+            if (tm.tmName === form.tmName && tm.logoUrl === form.logoUrl) {
+              this.$message.warning("不能提交与之前一样的数据");
+              return;
+            }
+          }
+          // 表单校验通过,发送请求
+          let result;
+          if (isUpdate) {
+            //更新数据
+            result = await this.$API.tradeMark.updatePageList(form);
+          } else {
+            //添加数据
+            result = await this.$API.tradeMark.addPageList(form);
+          }
+
+          if (result.code === 200) {
+            this.$message.success(`${isUpdate ? "修改" : "添加"}成功`);
+            this.visible = false; //隐藏对话框
+            this.getTrademarkList(this.page, this.limit); //重新请求新的数据
+          } else {
+            this.$message.error(result.message);
+          }
         }
       });
+    },
+    //修改品牌
+    update(row) {
+      // 清空表单的校验
+      this.$refs.form && this.$refs.form.clearValidate();
+      this.visible = true;
+      this.form = { ...row }; //展开后，放入新对象里面，在赋值，就就不会改变row的值
+    },
+    // 添加品牌按钮
+    add() {
+      //先清除表单认证
+      this.$refs.form && this.$refs.form.clearValidate();
+      this.visible = true; //使表单显示
+      this.form = { tmName: "", logoUrl: "" }; //添加时，表单，里面要空的·要定义成响应式数据，
+      //不能是直接空对象 {} 不然不是响应式的，缩略图出不来
     },
     //删除品牌
     async DelPageList(id) {

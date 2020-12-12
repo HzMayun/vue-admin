@@ -28,5 +28,13 @@ export default {
       method: 'DELETE',
     })
   },
+  //修改品牌
+  updatePageList(data) {
+    return request({
+      url: `${api_name}/update`,
+      method: 'PUT',
+      data
+    })
+  },
 
 }
