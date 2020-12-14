@@ -35,7 +35,12 @@
     </el-dialog>
 
     <!-- 表单 -->
-    <el-table :data="tradeLists" border style="width: 100%; margin: 20px 0">
+    <el-table
+      v-loading="loading"
+      :data="tradeLists"
+      border
+      style="width: 100%; margin: 20px 0"
+    >
       <el-table-column
         type="index"
         prop="index"
@@ -99,6 +104,7 @@ export default {
       page: 1, //页码
       limit: 3, //每页条数
       visible: false, // 对话框显示&隐藏
+      loading: false,
       form: {
         tmName: "",
         logoUrl: "",
@@ -113,7 +119,9 @@ export default {
   },
   methods: {
     //获取列表数据 的封装
+
     async getTrademarkList(page, limit) {
+      this.loading = true;
       const result = await this.$API.tradeMark.getPageList(page, limit);
       console.log(page, limit);
       if (result.code === 200) {
@@ -125,6 +133,7 @@ export default {
       } else {
         this.$message.error("获取品牌分页列表失败");
       }
+      this.loading = false;
     },
     //提交之前先验证
     beforeAvatarUpload(file) {
@@ -208,12 +217,6 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-.trademark-pagination
-  text-align: right
-  width: 100%
->>> .el-pagination__sizes
-  margin-left: 27%
-
 >>>.avatar-uploader .el-upload
   border: 1px dashed #d9d9d9
   border-radius: 6px

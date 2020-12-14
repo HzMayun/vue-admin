@@ -1,49 +1,70 @@
-import request from '@/utils/request'
+import request from "@/utils/request";
 
+const api_name = "/admin/product";
 
-const api_name = '/admin/product'
 export default {
-  //获取1级分类列表
-  getCategory1List() {
+  /*
+  获取1级分类列表
+  */
+  getCategorys1() {
     return request({
       url: `${api_name}/getCategory1`,
-      method: 'GET',
-    })
+      method: "GET"
+    });
   },
-  //获取2级分类列表
-  getCategory2List(category1Id) {
+  /*
+  获取2级分类列表
+  */
+  getCategorys2(category1Id) {
     return request({
-      url: `${api_name}/getCategory2${category1Id}`,
-      method: 'GET',
-    })
+      url: `${api_name}/getCategory2/${category1Id}`,
+      method: "GET"
+    });
   },
-  //获取3级分类列表
-  getCategory3List(category2Id) {
+  /*
+  获取3级分类列表
+  */
+  getCategorys3(category2Id) {
     return request({
-      url: `${api_name}/getCategory3${category2Id}`,
-      method: 'GET',
-    })
+      url: `${api_name}/getCategory3/${category2Id}`,
+      method: "GET"
+    });
   },
-  //获取form渲染列表
-  getAttrInfoList({ category1Id, category2Id, category3Id }) {
+  /*
+  获取分类对应的属性列表
+  */
+  getAttrList({ category1Id, category2Id, category3Id }) {
     return request({
       url: `${api_name}/attrInfoList/${category1Id}/${category2Id}/${category3Id}`,
-      method: 'GET',
-    })
+      method: "GET"
+    });
   },
-  //根据attrId删除attr
+  /*
+  删除属性
+  */
   deleteAttr(attrId) {
     return request({
       url: `${api_name}/deleteAttr/${attrId}`,
-      method: 'GET',
-    })
+      method: "DELETE"
+    });
   },
-  //新增attr商品属性
-  deleteAttr(baseAttrInfo) {
+  /*
+  获取属性的属性值列表
+  */
+  getAttrValueList(attrId) {
+    return request({
+      url: `${api_name}/getAttrValueList/${attrId}`,
+      method: "GET"
+    });
+  },
+  /*
+  保存属性
+  */
+  saveAttrInfo(attr) {
     return request({
       url: `${api_name}/saveAttrInfo`,
-      method: 'GET',
-      data: baseAttrInfo
-    })
-  },
-}
+      method: "POST",
+      data: attr
+    });
+  }
+};
