@@ -5,9 +5,9 @@
       @clearList 当1级分类和2级分类触发的时候触发，清空列表
       :disabled 决定select是否可以使用
      -->
-    <Category />
+    <Category :disabled="!isShowList" />
     <SpuShowlist v-if="isShowList" @showUpdateList="showUpdateList" />
-    <SpuUpdateList v-else :item="item" />
+    <SpuUpdateList v-else :item="item" @showList="showList" />
   </div>
 </template>
 
@@ -33,6 +33,15 @@ export default {
     showUpdateList(row) {
       this.isShowList = false;
       this.item = { ...row };
+    },
+    showList(category3Id) {
+      this.isShowList = true; //这个事件触发后，页面就会跳转到spuShowList ,这时候要重新发送一边请求
+      this.$nextTick(() => {
+        //这里是为了是spuShowList 组件加载完毕，然后在触发全局事件总线事件
+        this.$bus.$emit("change", { category3Id });
+        //全局事件总线 ，定义在spuShowList中，handleCategoryChange，用来发送请求，获取表单数据的
+        //参数是分级列表的3级id
+      });
     },
   },
 };

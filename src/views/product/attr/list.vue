@@ -36,18 +36,24 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="150">
-          <template v-slot="{ row }">
+          <template v-slot="{ row, $index }">
             <el-button
               type="warning"
               icon="el-icon-edit"
               size="mini"
               @click="update(row)"
             ></el-button>
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-            ></el-button>
+            <!--  删除按钮 -->
+            <el-popconfirm
+              @onConfirm="delAttrListValue($index)"
+              :title="`确定删除 ${row.valueName} 吗？`"
+              ><el-button
+                type="danger"
+                icon="el-icon-delete"
+                size="mini"
+                slot="reference"
+              ></el-button
+            ></el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
@@ -208,6 +214,10 @@ export default {
     delAttrValue(index) {
       console.log(index);
       this.attr.attrValueList.splice(index, 1);
+    },
+    delAttrListValue(index) {
+      console.log(index);
+      this.attrList.splice(index, 1);
     },
     addAttrValue() {
       this.attr.attrValueList.push({ edit: true });
