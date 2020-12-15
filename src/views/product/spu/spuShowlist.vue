@@ -14,7 +14,7 @@
 
         <el-table-column prop="description" label="SPU描述"> </el-table-column>
         <el-table-column label="操作">
-          <template slot-scope="{ row }">
+          <template v-slot="{ row }">
             <el-button
               type="primary"
               icon="el-icon-plus"
@@ -27,11 +27,16 @@
               @click="$emit('showUpdateList', row)"
             ></el-button>
             <el-button type="info" icon="el-icon-info" size="mini"></el-button>
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-            ></el-button>
+            <el-popconfirm
+              @onConfirm="delSpuList(row.id)"
+              :title="`确定要删除&quot;${row.saleAttrName}&quot;吗？`"
+              ><el-button
+                type="danger"
+                icon="el-icon-delete"
+                size="mini"
+                slot="reference"
+              ></el-button
+            ></el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
@@ -69,6 +74,18 @@ export default {
     };
   },
   methods: {
+    //点击删除spuList的一个数据
+    async delSpuList(id) {
+      this.spuList = this.spuList.filter((item) => item.id !== id); //根据id取去除点击的元素
+      //发送请求
+      const result = await this.$API.spu.deleteSpu(id);
+      if (result.code === 200) {
+        this.$message.success("删除SPU分页列表成功~");
+        //重新发送分页请求
+        this.$bus.$on("change", this.handleCategoryChange);
+      }
+    },
+
     // 封装一个请求SPU分页列表的函数
     async getPageList(page, limit) {
       this.loading = true;
