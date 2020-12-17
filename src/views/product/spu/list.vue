@@ -5,9 +5,16 @@
       @clearList 当1级分类和2级分类触发的时候触发，清空列表
       :disabled 决定select是否可以使用
      -->
-    <Category :disabled="!isShowList" />
-    <SpuShowlist v-if="isShowList" @showUpdateList="showUpdateList" />
-    <SpuUpdateList v-else :item="item" @showList="showList" />
+    <SkuList v-if="isSkuShow"></SkuList>
+    <div v-else>
+      <Category :disabled="!isShowList" />
+      <SpuShowlist
+        v-if="isShowList"
+        @showUpdateList="showUpdateList"
+        @showSkuList="showSkuList"
+      />
+      <SpuUpdateList v-else :item="item" @showList="showList" />
+    </div>
   </div>
 </template>
 
@@ -15,6 +22,8 @@
 import Category from "@/components/Category";
 import SpuShowlist from "./spuShowlist";
 import SpuUpdateList from "./spuUpdateList";
+import SkuList from "./skuList";
+import { createNamespacedHelpers } from "vuex";
 
 export default {
   name: "SpuList",
@@ -22,17 +31,24 @@ export default {
     return {
       isShowList: true,
       item: {},
+      isSkuShow: false,
     };
   },
   components: {
     Category,
     SpuShowlist,
     SpuUpdateList,
+    SkuList,
   },
   methods: {
+    //修改
     showUpdateList(row) {
       this.isShowList = false;
       this.item = { ...row };
+    },
+
+    showSkuList() {
+      this.isSkuShow = true;
     },
     showList(category3Id) {
       this.isShowList = true; //这个事件触发后，页面就会跳转到spuShowList ,这时候要重新发送一边请求

@@ -1,6 +1,4 @@
-<template>
-  <div>Sku管理</div>
-</template>
+<template></template>
 
 <script>
 export default {

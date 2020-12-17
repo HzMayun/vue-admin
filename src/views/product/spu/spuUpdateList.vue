@@ -71,62 +71,67 @@
             :disabled="!spu.sale"
             >添加销售属性</el-button
           >
-        </el-form-item>
-        <el-table
-          border
-          :data="spuSaleAttrList"
-          style="width: 100%; margin: 20px 0"
-        >
-          <el-table-column type="index" label="序号" width="80" align="center">
-          </el-table-column>
-          <el-table-column prop="saleAttrName" label="属性名称" width="150">
-          </el-table-column>
-
-          <el-table-column label="属性值列表">
-            <template v-slot="{ row }">
-              <el-tag
-                style="margin-right: 5px"
-                @close="delTag(index, row)"
-                closable
-                v-for="(attrVal, index) in row.spuSaleAttrValueList"
-                :key="attrVal.id"
-                >{{ attrVal.saleAttrValueName }}</el-tag
-              >
-              <el-input
-                v-if="row.edit"
-                size="mini"
-                style="width: 100px"
-                @blur="editCompleted(row)"
-                @keyup.enter.native="editCompleted(row)"
-                autofocus
-                ref="input"
-                v-model="saleAttrValueText"
-              >
-              </el-input
-              ><el-button
-                v-else
-                icon="el-icon-plus"
-                size="mini"
-                @click="edit(row)"
-                >添加</el-button
-              >
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="150">
-            <template v-slot="{ row, $index }">
-              <el-popconfirm
-                @onConfirm="delSpuSaleAttr($index)"
-                :title="`确定要删除&quot;${row.saleAttrName}&quot;吗？`"
-                ><el-button
-                  type="danger"
-                  icon="el-icon-delete"
+          <el-table
+            border
+            :data="spuSaleAttrList"
+            style="width: 100%; margin: 20px 0"
+          >
+            <el-table-column
+              type="index"
+              label="序号"
+              width="80"
+              align="center"
+            >
+            </el-table-column>
+            <el-table-column prop="saleAttrName" label="属性名称" width="150">
+            </el-table-column>
+            <el-table-column label="属性值列表">
+              <template v-slot="{ row }">
+                <el-tag
+                  style="margin-right: 5px"
+                  @close="delTag(index, row)"
+                  closable
+                  v-for="(attrVal, index) in row.spuSaleAttrValueList"
+                  :key="attrVal.id"
+                  >{{ attrVal.saleAttrValueName }}</el-tag
+                >
+                <el-input
+                  v-if="row.edit"
                   size="mini"
-                  slot="reference"
-                ></el-button
-              ></el-popconfirm>
-            </template>
-          </el-table-column>
-        </el-table>
+                  style="width: 100px"
+                  @blur="editCompleted(row)"
+                  @keyup.enter.native="editCompleted(row)"
+                  autofocus
+                  ref="input"
+                  v-model="saleAttrValueText"
+                >
+                </el-input
+                ><el-button
+                  v-else
+                  icon="el-icon-plus"
+                  size="mini"
+                  @click="edit(row)"
+                  >添加</el-button
+                >
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="150">
+              <template v-slot="{ row, $index }">
+                <el-popconfirm
+                  @onConfirm="delSpuSaleAttr($index)"
+                  :title="`确定要删除&quot;${row.saleAttrName}&quot;吗？`"
+                  ><el-button
+                    type="danger"
+                    icon="el-icon-delete"
+                    size="mini"
+                    slot="reference"
+                  ></el-button
+                ></el-popconfirm>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-form-item>
+
         <el-form-item>
           <el-button type="primary" @click="save">保存</el-button>
           <el-button @click="lost"> 取消</el-button>
@@ -347,10 +352,18 @@ export default {
             spuImageList: this.spuImageList,
             spuSaleAttrList: this.spuSaleAttrList,
           };
-          //获取spu后，发送save请求
-          const result = await this.$API.spu.updateSpu(spu);
+          let result;
+          //获取spu后，发送请求
+          if (this.spu.id) {
+            result = await this.$API.spu.updateSpu(spu);
+          } else {
+            result = await this.$API.spu.saveSpu(spu);
+          }
+
           if (result.code === 200) {
-            this.$message.success("保存spu成功");
+            this.$message.success(
+              this.spu.id ? "更新 spu成功" : "保存spu成功过"
+            );
             //成功保存后，触发自定义事件，把isShowList设置为true，跳转到spuShowList界面
             this.$emit("showList", this.spu.category3Id); //把分类列表的3级ID 传过去
           } else {
@@ -415,10 +428,12 @@ export default {
   },
 
   mounted() {
-    this.getTrademarkList(); // 获取所有品牌数据
-    this.getSpuImageList(); // 获取所有图片数据
     this.getSaleAttrList(); // 获取所有销售属性列表
-    this.getSpuSaleAttrList(); // 获取SPU销售属性列表
+    this.getTrademarkList(); // 获取所有品牌数据
+    if (this.spu.id) {
+      this.getSpuImageList(); // 获取所有图片数据
+      this.getSpuSaleAttrList(); // 获取SPU销售属性列表
+    }
   },
 };
 </script>

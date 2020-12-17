@@ -51,6 +51,7 @@
 </template>
 
 <script>
+import { mapState, mapMutations, mapActions } from "vuex";
 export default {
   name: "Category",
   props: ["disabled"],
@@ -61,57 +62,50 @@ export default {
         category2Id: "",
         category3Id: "",
       },
-      category1List: [], // 1级分类数据
-      category2List: [],
-      category3List: [],
     };
   },
+  computed: {
+    ...mapState({
+      category1List: (state) => state.category.category1List,
+      category2List: (state) => state.category.category2List,
+      category3List: (state) => state.category.category3List,
+    }),
+  },
   methods: {
+    ...mapMutations(["category/SET_CATEGORY3_ID"]),
+    ...mapActions([
+      "category/getCategory1List",
+      "category/getCategory2List",
+      "category/getCategory3List",
+    ]),
     // 处理输入框的change事件
+    //选中一级列表，使用category1Id 请求二级列表数据
     async handleSelectChange1(category1Id) {
-      this.category2List = [];
-      this.category3List = [];
+      // console.log(category1Id); //2
+      //清除自己的ID
       this.category.category2Id = "";
       this.category.category3Id = "";
-
-      const result = await this.$API.attrs.getCategorys2(category1Id);
-      if (result.code === 200) {
-        this.category2List = result.data;
-      } else {
-        this.$message.error(result.message);
-      }
-      // 清空父组件的数据 全局事件总线
-      this.$bus.$emit("clearList");
+      //category2List 和 category3List 使用的vuex中的数据，在vuex中已经处理过了
+      this["category/getCategory2List"](category1Id);
+      // // 清空父组件的数据 全局事件总线
+      // this.$bus.$emit("clearList");
     },
+    //选中二级列表数据，使用category2Id 请求三级数据列表数据
     async handleSelectChange2(category2Id) {
       this.category.category3Id = "";
-      this.category3List = [];
-
-      const result = await this.$API.attrs.getCategorys3(category2Id);
-      if (result.code === 200) {
-        this.category3List = result.data;
-      } else {
-        this.$message.error(result.message);
-      }
-      // 清空父组件的数据
-      this.$bus.$emit("clearList");
+      this["category/getCategory3List"](category2Id);
+      // // 清空父组件的数据   这个在vuex中的actions中已经处理过了，这里就不用再写了
+      // this.$bus.$emit("clearList");
     },
+    //选中三级列表数据，使用category3Id 请求下面form表单的数据
     async handleSelectChange3(category3Id) {
-      const category = {
-        ...this.category,
-        category3Id,
-      };
-
-      this.$bus.$emit("change", category);
+      this["category/SET_CATEGORY3_ID"](category3Id);
     },
   },
   async mounted() {
-    const result = await this.$API.attrs.getCategorys1();
-    if (result.code === 200) {
-      this.category1List = result.data;
-    } else {
-      this.$message.error(result.message);
-    }
+    this["category/getCategory1List"](); //获取一级分页列表，这个是一上来就要请求的 所以没有id
+    // console.log(111);
+    // console.log(this.category1List);
   },
 };
 </script>

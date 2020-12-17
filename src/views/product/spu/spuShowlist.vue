@@ -1,7 +1,13 @@
 <template>
   <div>
     <el-card style="margin-top: 20px">
-      <el-button type="primary" icon="el-icon-plus">添加SPU</el-button>
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        @click="$emit('showUpdateList', { category3Id: category.category3Id })"
+        :disabled="!category.category3Id"
+        >添加SPU</el-button
+      >
       <el-table
         :data="spuList"
         v-loading="loading"
@@ -19,6 +25,7 @@
               type="primary"
               icon="el-icon-plus"
               size="mini"
+              @click="$emit('showSkuList')"
             ></el-button>
             <el-button
               type="primary"
@@ -46,7 +53,7 @@
       class="trademark-pagination"
       @size-change="getPageList(page, $event)"
       @current-change="getPageList($event, limit)"
-      :page-sizes="[3, 6, 9]"
+      :page-sizes="[6, 9, 12]"
       :page-size.sync="limit"
       :current-page="page"
       layout="prev, pager, next, jumper, sizes, total"
@@ -57,21 +64,42 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 export default {
   name: "SpuShowlist",
   data() {
     return {
       page: 1,
-      limit: 3,
+      limit: 6,
       total: 0,
-      category: {
-        category1Id: "",
-        category2Id: "",
-        category3Id: "",
-      },
+      // category: {
+      //   category1Id: "",
+      //   category2Id: "",
+      //   category3Id: "",
+      // },
       spuList: [],
       loading: false,
     };
+  },
+  computed: {
+    ...mapState({ category: (state) => state.category.category }),
+  },
+  watch: {
+    "category.category3Id": {
+      handler(category3Id) {
+        console.log(category3Id);
+        if (!category3Id) return;
+        this.getPageList(this.page, this.limit);
+      },
+      immediate: true, // 一上来触发一次
+    },
+    "category.category1Id"() {
+      this.clearList();
+    },
+    "category.category2Id"() {
+      this.clearList();
+    },
   },
   methods: {
     //点击删除spuList的一个数据
@@ -104,19 +132,19 @@ export default {
       }
       this.loading = false;
     },
-    // 处理category的change（当选中三级分类时触发）
-    handleCategoryChange(category) {
-      // 触发事件，会将分类id传递过来
-      this.category = category;
-      //发送请求（这里是封装的函数）
-      this.getPageList(this.page, this.limit);
-    },
+    // // 处理category的change（当选中三级分类时触发）
+    // handleCategoryChange(category) {
+    //   // 触发事件，会将分类id传递过来
+    //   this.category = category;
+    //   //发送请求（这里是封装的函数）
+    //   this.getPageList(this.page, this.limit);
+    // },
     //点击切换category后，清空数据
     //当选中1级或2级分类触发
     clearList() {
       this.spuList = [];
       this.page = 1;
-      this.limit = 3;
+      this.limit = 6;
       this.total = 0;
       this.category.category3Id = "";
     },
@@ -124,15 +152,19 @@ export default {
     //
   },
   mounted() {
-    //发送请求
-    this.$bus.$on("change", this.handleCategoryChange);
+    // //发送请求
+    // this.$bus.$on("change", this.handleCategoryChange);
     // 清空数据
     this.$bus.$on("clearList", this.clearList);
+    // console.log(this.category.category3Id);
   },
   beforeDestroy() {
+    console.log(11);
     // 通常情况下：清除绑定的全局事件
-    this.$bus.$off("change", this.handleCategoryChange);
-    this.$bus.$off("clearList", this.clearList);
+    // this.$bus.$off("change", this.handleCategoryChange);
+    this.category.category1Id = "";
+    this.category.category2Id = "";
+    this.category.category3Id = "";
   },
 };
 </script>
