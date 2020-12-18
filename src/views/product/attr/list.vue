@@ -19,7 +19,12 @@
         >添加属性</el-button
       >
 
-      <el-table :data="attrList" border style="width: 100%; margin: 20px 0">
+      <el-table
+        :data="attrList"
+        v-loading="loading"
+        border
+        style="width: 100%; margin: 20px 0"
+      >
         <el-table-column type="index" label="序号" width="80" align="center">
         </el-table-column>
         <el-table-column prop="attrName" label="属性名称" width="150">
@@ -78,6 +83,7 @@
         :data="attr.attrValueList"
         border
         style="width: 100%; margin: 20px 0"
+        v-loading="loading"
       >
         <el-table-column type="index" label="序号" width="80" align="center">
         </el-table-column>
@@ -143,7 +149,7 @@ attrValueList:Array[3]
   id:18904
   valueName:"5.0~5.49英寸"
 */
-
+import { mapState } from "vuex";
 export default {
   name: "AttrList",
   data() {
@@ -154,13 +160,25 @@ export default {
         attrName: "",
         attrValueList: [],
       },
-      category: {
-        // 代表三个分类id数据
-        category1Id: "",
-        category2Id: "",
-        category3Id: "",
-      },
+      loading: false,
     };
+  },
+  computed: {
+    ...mapState({
+      category: (state) => state.category.category,
+    }),
+  },
+  watch: {
+    "category.category3Id"(category3Id) {
+      if (!category3Id) return;
+      this.getAttrList();
+    },
+    "category.category1Id"() {
+      this.clearList();
+    },
+    "category.category2Id"() {
+      this.clearList();
+    },
   },
   methods: {
     clearList() {
@@ -242,26 +260,23 @@ export default {
 
       this.isShowList = false;
     },
-    async getAttrList(category) {
-      this.category = category;
-      const result = await this.$API.attrs.getAttrList(category);
+    async getAttrList() {
+      this.loading = true;
+      const result = await this.$API.attrs.getAttrList(this.category);
       if (result.code === 200) {
         // console.log(result.data);
         // 子组件给父组件传递参数 自定义事件
+
         this.attrList = result.data;
       } else {
         this.$message.error(result.message);
       }
+      this.loading = false;
     },
   },
-  mounted() {
-    this.$bus.$on("change", this.getAttrList);
-    this.$bus.$on("clearList", this.clearList);
-  },
+
   beforeDestroy() {
-    // 通常情况下：清除绑定的全局事件
-    this.$bus.$off("change", this.getAttrList);
-    this.$bus.$off("clearList", this.clearList);
+    this.$store.commit("category/DEL_ALL_DATA");
   },
   components: {
     Category,

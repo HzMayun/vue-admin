@@ -134,7 +134,7 @@
 
         <el-form-item>
           <el-button type="primary" @click="save">保存</el-button>
-          <el-button @click="lost"> 取消</el-button>
+          <el-button @click="$emit('showList')"> 取消</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -142,6 +142,8 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+import { category } from "@/api";
 export default {
   name: "SpuUpdateList",
   props: {
@@ -168,6 +170,9 @@ export default {
     };
   },
   computed: {
+    ...mapState({
+      category: (state) => state.category.category,
+    }),
     //计算属性来生成一个新的spuImageList ，elemnt UI  必须使用 {name：xxx,url :xxx}
     //但是数据库发送请求，又要使用{imgName：xxx,imgUrl :xxx},这个是 返回来的图片数据的格式
     ImageList() {
@@ -349,6 +354,7 @@ export default {
           console.log("表单验证通过");
           const spu = {
             ...this.spu,
+            category3Id: this.category.category3Id,
             spuImageList: this.spuImageList,
             spuSaleAttrList: this.spuSaleAttrList,
           };
@@ -365,7 +371,7 @@ export default {
               this.spu.id ? "更新 spu成功" : "保存spu成功过"
             );
             //成功保存后，触发自定义事件，把isShowList设置为true，跳转到spuShowList界面
-            this.$emit("showList", this.spu.category3Id); //把分类列表的3级ID 传过去
+            this.$emit("showList");
           } else {
             this.$message.error(error.message);
           }
@@ -420,10 +426,6 @@ export default {
         tmId: 253
       }
      */
-    },
-    //取消
-    lost() {
-      this.$emit("showList", this.spu.category3Id); //把分类列表的3级ID 传过去
     },
   },
 

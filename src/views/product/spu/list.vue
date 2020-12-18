@@ -5,7 +5,7 @@
       @clearList 当1级分类和2级分类触发的时候触发，清空列表
       :disabled 决定select是否可以使用
      -->
-    <SkuList v-if="isSkuShow"></SkuList>
+    <SkuList v-if="isSkuShow" :skuItem="skuItem"></SkuList>
     <div v-else>
       <Category :disabled="!isShowList" />
       <SpuShowlist
@@ -32,6 +32,7 @@ export default {
       isShowList: true,
       item: {},
       isSkuShow: false,
+      skuItem: {},
     };
   },
   components: {
@@ -47,8 +48,9 @@ export default {
       this.item = { ...row };
     },
 
-    showSkuList() {
+    showSkuList(row) {
       this.isSkuShow = true;
+      this.skuItem = { ...row };
     },
     showList(category3Id) {
       this.isShowList = true; //这个事件触发后，页面就会跳转到spuShowList ,这时候要重新发送一边请求
@@ -59,6 +61,9 @@ export default {
         //参数是分级列表的3级id
       });
     },
+  },
+  beforeDestroy() {
+    this.$store.commit("category/DEL_ALL_DATA");
   },
 };
 </script>

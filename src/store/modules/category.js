@@ -60,7 +60,8 @@ export default {
       //修改列表和id
 
       state.category2List = category2List;
-      state.category1Id = category1Id;
+      state.category.category1Id = category1Id;
+
       // 当一级列表选中时，清空三级数据和一级、二级ID
       state.category3List = [];
       state.category2Id = "";
@@ -69,6 +70,7 @@ export default {
     //二级分页列表处理函数(失败)
     GET_CATEGORY2_LIST_ERROR(state, category1Id) {
       state.category.category1Id = category1Id;
+
       state.category.category2Id = "";
       state.category.category3Id = "";
       state.category2List = [];
@@ -79,6 +81,7 @@ export default {
       state.category.category2Id = category2Id  //2 ID 赋值
       state.category3List = category3List
       state.category.category3Id = "";
+
     },
     //三级分页列表处理函数（失败）
     GET_CATEGORY3_LIST_ERROR(state, category2Id) {
@@ -89,6 +92,15 @@ export default {
     SET_CATEGORY3_ID(state, category3Id) {    //处理3级ID 的数值
       state.category.category3Id = category3Id
       // console.log(category3Id); //61
+    },
+    //清除所有的id的数据列表
+    DEL_ALL_DATA(state) {
+      state.category1List = [];
+      state.category3List = [];
+      state.category2List = [];
+      state.category.category1Id = "";
+      state.category.category2Id = "";
+      state.category.category3Id = "";
     }
   },
 

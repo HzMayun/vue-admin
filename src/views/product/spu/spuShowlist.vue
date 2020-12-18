@@ -25,7 +25,7 @@
               type="primary"
               icon="el-icon-plus"
               size="mini"
-              @click="$emit('showSkuList')"
+              @click="$emit('showSkuList', row)"
             ></el-button>
             <el-button
               type="primary"
@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 
 export default {
   name: "SpuShowlist",
@@ -83,7 +83,9 @@ export default {
     };
   },
   computed: {
-    ...mapState({ category: (state) => state.category.category }),
+    ...mapState({
+      category: (state) => state.category.category,
+    }),
   },
   watch: {
     "category.category3Id": {
@@ -102,6 +104,7 @@ export default {
     },
   },
   methods: {
+    ...mapMutations(["category/DEL_ALL_DATA"]),
     //点击删除spuList的一个数据
     async delSpuList(id) {
       this.spuList = this.spuList.filter((item) => item.id !== id); //根据id取去除点击的元素
@@ -150,21 +153,6 @@ export default {
     },
 
     //
-  },
-  mounted() {
-    // //发送请求
-    // this.$bus.$on("change", this.handleCategoryChange);
-    // 清空数据
-    this.$bus.$on("clearList", this.clearList);
-    // console.log(this.category.category3Id);
-  },
-  beforeDestroy() {
-    console.log(11);
-    // 通常情况下：清除绑定的全局事件
-    // this.$bus.$off("change", this.handleCategoryChange);
-    this.category.category1Id = "";
-    this.category.category2Id = "";
-    this.category.category3Id = "";
   },
 };
 </script>
