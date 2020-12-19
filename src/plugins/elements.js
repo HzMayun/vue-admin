@@ -46,7 +46,7 @@ import {
   CheckboxGroup,
   // Switch,
   // OptionGroup,
-  // ButtonGroup,
+  ButtonGroup,
   // TimeSelect,
   // TimePicker,
   Popover,
@@ -134,7 +134,7 @@ Vue.use(CheckboxGroup);
 // Vue.use(CheckboxButton);
 // Vue.use(Switch);
 // Vue.use(OptionGroup);
-// Vue.use(ButtonGroup);
+Vue.use(ButtonGroup);
 // Vue.use(TimeSelect);
 // Vue.use(TimePicker);
 Vue.use(Popover);

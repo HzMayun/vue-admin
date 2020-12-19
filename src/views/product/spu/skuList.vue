@@ -40,7 +40,7 @@
             <el-form-item :label="attr.attrName">
               <el-select
                 placeholder="请输入"
-                v-model="sku.attrIdValueId[index]"
+                v-model="sku.skuAttrValueList[index]"
               >
                 <el-option
                   v-for="attrValue in attr.attrValueList"
@@ -76,14 +76,15 @@
         <el-form-item label="图片列表">
           <el-table
             tooltip-effect="dark"
-            style="width: 100%"
+            style="width: 100%; margin: 20px 0"
             border
             :data="imageList"
+            @selection-change="handleSelectionChange"
             row-key="id"
           >
             <el-table-column type="selection" reserve-selection width="55">
             </el-table-column>
-            <el-table-column label="图片">
+            <el-table-column label="图片" center>
               <template slot-scope="scope"
                 ><img
                   style="width: 200px; height: 100px"
@@ -93,8 +94,17 @@
             </el-table-column>
             <el-table-column prop="imgName" label="名称"> </el-table-column>
             <el-table-column label="操作">
-              <template>
-                <el-button type="primary" size="mini">设为默认</el-button>
+              <template v-slot="{ row }">
+                <el-button
+                  v-if="!row.isDefault"
+                  @click="setDefault(row.id)"
+                  type="primary"
+                  size="mini"
+                  >设为默认</el-button
+                >
+                <el-button v-else type="success" plain size="mini">
+                  默认</el-button
+                >
               </template>
             </el-table-column>
           </el-table>
@@ -128,8 +138,9 @@ export default {
       spuSaleAttrList: [], //销售属性列表
       attrList: [], //平台属性列表
       sku: {
-        attrIdValueId: [], //拼接平台属性id
+        skuAttrValueList: [], //拼接平台属性id
         skuSaleAttrValueList: [], //拼接销售列表的id
+        skuImageList: [],
       },
     };
   },
@@ -164,6 +175,42 @@ export default {
         this.$message.error(new Error(result.message));
       }
     },
+    setDefault(id) {
+      // this.clearValidate("skuImageList");
+      this.imageList = this.imageList.map((img, index) => {
+        return {
+          ...img,
+          isDefault: img.id === id ? true : false,
+        };
+      });
+      this.sku.skuImageList = this.sku.skuImageList.map((img, index) => {
+        return {
+          ...img,
+          isDefault: img.id === id ? true : false,
+        };
+      });
+    },
+    //选择图片按钮
+    handleSelectionChange() {
+      this.sku.skuImageList = skuImageList;
+    },
+    save() {
+      const { category3Id, id: spuId, tmId } = this.spu;
+      const skuAttrValueList = this.sku.skuAttrValueList.map((attr) => {
+        const [attrId, valueId] = attr.split("-");
+        return {
+          attrId,
+          valueId,
+        };
+      });
+      const skuSaleAttrValueList = this.skuSaleAttrValueList.map((attr) => {
+        const [spuId, saleAttrValueId] = attr.split("-");
+        return {
+          saleAttrValueId,
+          skuId,
+        };
+      });
+    },
   },
   mounted() {
     this.getSpuImageList(); //获取所有的图片数据
@@ -172,3 +219,9 @@ export default {
   },
 };
 </script>
+<style lang="sass" scoped>
+.skulist-select-container
+  width: 33%
+  display: inline-block
+  margin-top: 5px
+</style>
